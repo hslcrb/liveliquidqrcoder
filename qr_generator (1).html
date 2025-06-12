@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Live QR Generator</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700;900&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            font-weight: 700;
+            background: 
+                radial-gradient(circle at 25% 25%, rgba(255,255,255,0.4) 0%, transparent 50%),
+                radial-gradient(circle at 75% 75%, rgba(144,202,249,0.3) 0%, transparent 50%),
+                linear-gradient(135deg, #e1f5fe 0%, #b3e5fc 30%, #81d4fa 70%, #4fc3f7 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* 향상된 배경 리퀴드 효과 */
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: 
+                radial-gradient(ellipse at 15% 20%, rgba(255,255,255,0.6) 0%, rgba(255,255,255,0.2) 30%, transparent 70%),
+                radial-gradient(ellipse at 85% 80%, rgba(255,255,255,0.4) 0%, rgba(255,255,255,0.1) 40%, transparent 80%),
+                radial-gradient(ellipse at 60% 10%, rgba(144,202,249,0.3) 0%, transparent 60%),
+                radial-gradient(ellipse at 30% 90%, rgba(129,212,250,0.25) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: 0;
+            animation: liquidMove 8s ease-in-out infinite;
+        }
+
+        @keyframes liquidMove {
+            0%, 100% { 
+                background-position: 0% 0%, 100% 100%, 60% 10%, 30% 90%;
+                filter: blur(0px);
+            }
+            50% { 
+                background-position: 20% 30%, 80% 70%, 40% 30%, 50% 70%;
+                filter: blur(1px);
+            }
+        }
+
+        .container {
+            max-width: 500px;
+            width: 90%;
+            padding: 40px 30px;
+            border-radius: 35px;
+            position: relative;
+            z-index: 1;
+            
+            /* 향상된 글래스모피즘 효과 */
+            background: 
+                linear-gradient(135deg, rgba(255,255,255,0.4) 0%, rgba(255,255,255,0.1) 100%),
+                linear-gradient(45deg, rgba(144,202,249,0.1) 0%, rgba(255,255,255,0.2) 50%, rgba(129,212,250,0.1) 100%);
+            backdrop-filter: blur(25px) saturate(1.2);
+            -webkit-backdrop-filter: blur(25px) saturate(1.2);
+            border: 2px solid transparent;
+            background-clip: padding-box;
+            
+            /* 리퀴드 글래스 테두리 */
+            box-shadow: 
+                0 0 0 1px rgba(255,255,255,0.4),
+                0 8px 32px rgba(144,202,249,0.3),
+                0 -8px 32px rgba(255,255,255,0.6),
+                inset 0 1px 0 rgba(255,255,255,0.8),
+                inset 0 -1px 0 rgba(255,255,255,0.2),
+                inset 1px 0 0 rgba(255,255,255,0.3),
+                inset -1px 0 0 rgba(144,202,249,0.1);
+                
+            animation: float 6s ease-in-out infinite, shimmer 4s ease-in-out infinite;
+            overflow: hidden;
+        }
+
+        /* 컨테이너 내부 빛 반사 효과 */
+        .container::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(45deg, 
+                rgba(255,255,255,0.6) 0%, 
+                transparent 30%, 
+                transparent 70%, 
+                rgba(255,255,255,0.3) 100%);
+            border-radius: 35px;
+            z-index: -1;
+            animation: rotate 8s linear infinite;
+        }
+
+        .container::after {
+            content: '';
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            right: 10px;
+            height: 20px;
+            background: linear-gradient(90deg, 
+                transparent 0%, 
+                rgba(255,255,255,0.4) 50%, 
+                transparent 100%);
+            border-radius: 20px 20px 0 0;
+            z-index: -1;
+            filter: blur(8px);
+        }
+
+        @keyframes shimmer {
+            0%, 100% { 
+                box-shadow: 
+                    0 0 0 1px rgba(255,255,255,0.4),
+                    0 8px 32px rgba(144,202,249,0.3),
+                    0 -8px 32px rgba(255,255,255,0.6),
+                    inset 0 1px 0 rgba(255,255,255,0.8),
+                    inset 0 -1px 0 rgba(255,255,255,0.2);
+            }
+            50% { 
+                box-shadow: 
+                    0 0 0 1px rgba(255,255,255,0.6),
+                    0 12px 40px rgba(144,202,249,0.4),
+                    0 -12px 40px rgba(255,255,255,0.8),
+                    inset 0 2px 0 rgba(255,255,255,1),
+                    inset 0 -2px 0 rgba(255,255,255,0.3);
+            }
+        }
+
+        @keyframes rotate {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .title {
+            font-size: 2.2rem;
+            font-weight: 900;
+            color: #1976d2;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(255,255,255,0.5);
+            letter-spacing: -0.5px;
+        }
+
+        .subtitle {
+            font-size: 1rem;
+            color: #42a5f5;
+            font-weight: 400;
+        }
+
+        .input-section {
+            margin-bottom: 30px;
+        }
+
+        .input-wrapper {
+            position: relative;
+            margin-bottom: 20px;
+        }
+
+        .input-field {
+            width: 100%;
+            padding: 18px 25px;
+            border: none;
+            border-radius: 25px;
+            font-size: 1.1rem;
+            font-family: 'Noto Sans KR', sans-serif;
+            font-weight: 700;
+            color: #1976d2;
+            
+            /* 리퀴드 글래스 배경 */
+            background: 
+                linear-gradient(135deg, rgba(255,255,255,0.6) 0%, rgba(255,255,255,0.2) 100%),
+                linear-gradient(45deg, rgba(255,255,255,0.3) 0%, transparent 50%, rgba(144,202,249,0.1) 100%);
+            backdrop-filter: blur(15px) saturate(1.1);
+            border: 1px solid rgba(255,255,255,0.6);
+            
+            /* 몽글한 유리 효과 */
+            box-shadow: 
+                0 0 0 1px rgba(255,255,255,0.3),
+                inset 0 1px 0 rgba(255,255,255,0.9),
+                inset 0 -1px 5px rgba(144,202,249,0.1),
+                0 8px 25px rgba(144,202,249,0.15);
+                
+            transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* 입력 필드 빛 반사 */
+        .input-field::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, 
+                transparent 0%, 
+                rgba(255,255,255,0.4) 50%, 
+                transparent 100%);
+            transition: left 0.6s ease;
+        }
+
+        .input-field:focus::before {
+            left: 100%;
+        }
+
+        .input-field:focus {
+            outline: none;
+            background: 
+                linear-gradient(135deg, rgba(255,255,255,0.8) 0%, rgba(255,255,255,0.3) 100%),
+                linear-gradient(45deg, rgba(255,255,255,0.4) 0%, transparent 50%, rgba(144,202,249,0.2) 100%);
+            border: 1px solid rgba(255,255,255,0.8);
+            box-shadow: 
+                0 0 0 2px rgba(255,255,255,0.4),
+                inset 0 2px 0 rgba(255,255,255,1),
+                inset 0 -2px 10px rgba(144,202,249,0.2),
+                0 15px 40px rgba(25,118,210,0.2),
+                0 0 30px rgba(255,255,255,0.5);
+            transform: translateY(-2px);
+        }
+
+        .input-field::placeholder {
+            color: #81c784;
+            font-weight: 400;
+        }
+
+        .lang-toggle {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            padding: 12px 18px;
+            border: none;
+            border-radius: 20px;
+            background: 
+                linear-gradient(135deg, rgba(255,255,255,0.5) 0%, rgba(255,255,255,0.2) 100%),
+                linear-gradient(45deg, rgba(255,255,255,0.3) 0%, rgba(144,202,249,0.1) 100%);
+            backdrop-filter: blur(20px) saturate(1.2);
+            color: #1976d2;
+            font-weight: 700;
+            cursor: pointer;
+            font-size: 0.9rem;
+            border: 1px solid rgba(255,255,255,0.4);
+            
+            box-shadow: 
+                0 0 0 1px rgba(255,255,255,0.2),
+                0 8px 20px rgba(144,202,249,0.2),
+                inset 0 1px 0 rgba(255,255,255,0.8);
+                
+            transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .lang-toggle::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.3) 0%, transparent 70%);
+            transform: scale(0);
+            transition: transform 0.6s ease;
+        }
+
+        .lang-toggle:hover::before {
+            transform: scale(1);
+        }
+
+        .lang-toggle:hover {
+            transform: translateY(-3px);
+            background: 
+                linear-gradient(135deg, rgba(255,255,255,0.7) 0%, rgba(255,255,255,0.3) 100%),
+                linear-gradient(45deg, rgba(255,255,255,0.4) 0%, rgba(144,202,249,0.2) 100%);
+            box-shadow: 
+                0 0 0 1px rgba(255,255,255,0.4),
+                0 15px 30px rgba(144,202,249,0.3),
+                inset 0 2px 0 rgba(255,255,255,1),
+                0 0 20px rgba(255,255,255,0.6);
+        }
+
+        .qr-display {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 250px;
+            border-radius: 30px;
+            position: relative;
+            overflow: hidden;
+            
+            /* 리퀴드 글래스 배경 */
+            background: 
+                radial-gradient(ellipse at top, rgba(255,255,255,0.7) 0%, rgba(255,255,255,0.3) 100%),
+                linear-gradient(135deg, rgba(255,255,255,0.4) 0%, rgba(144,202,249,0.1) 50%, rgba(255,255,255,0.2) 100%);
+            backdrop-filter: blur(20px) saturate(1.3);
+            border: 2px solid rgba(255,255,255,0.5);
+            
+            box-shadow: 
+                0 0 0 1px rgba(255,255,255,0.3),
+                inset 0 2px 0 rgba(255,255,255,0.9),
+                inset 0 -1px 5px rgba(144,202,249,0.1),
+                0 20px 40px rgba(144,202,249,0.15),
+                0 -10px 30px rgba(255,255,255,0.4);
+        }
+
+        /* QR 디스플레이 내부 빛 효과 */
+        .qr-display::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 30%;
+            background: linear-gradient(180deg, 
+                rgba(255,255,255,0.4) 0%, 
+                rgba(255,255,255,0.1) 50%, 
+                transparent 100%);
+            pointer-events: none;
+        }
+
+        .qr-display::after {
+            content: '';
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            right: 20px;
+            bottom: 20px;
+            border-radius: 20px;
+            background: linear-gradient(45deg, 
+                transparent 0%, 
+                rgba(255,255,255,0.1) 50%, 
+                transparent 100%);
+            pointer-events: none;
+            animation: innerGlow 3s ease-in-out infinite;
+        }
+
+        @keyframes innerGlow {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 0.6; }
+        }
+
+        #qrcode {
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 10px 25px rgba(25, 118, 210, 0.2);
+        }
+
+        .placeholder {
+            color: #81c784;
+            font-size: 1.1rem;
+            text-align: center;
+            font-weight: 400;
+        }
+
+        .download-btn {
+            width: 100%;
+            padding: 18px;
+            margin-top: 20px;
+            border: none;
+            border-radius: 25px;
+            background: 
+                linear-gradient(135deg, rgba(66,165,245,0.9) 0%, rgba(25,118,210,0.8) 100%),
+                linear-gradient(45deg, rgba(255,255,255,0.2) 0%, transparent 50%, rgba(144,202,249,0.1) 100%);
+            backdrop-filter: blur(10px);
+            color: white;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            border: 1px solid rgba(255,255,255,0.3);
+            position: relative;
+            overflow: hidden;
+            
+            box-shadow: 
+                0 0 0 1px rgba(255,255,255,0.2),
+                0 10px 25px rgba(25,118,210,0.3),
+                inset 0 1px 0 rgba(255,255,255,0.4);
+                
+            transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        /* 다운로드 버튼 리퀴드 효과 */
+        .download-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, 
+                transparent 0%, 
+                rgba(255,255,255,0.3) 30%, 
+                rgba(255,255,255,0.5) 50%, 
+                rgba(255,255,255,0.3) 70%, 
+                transparent 100%);
+            transition: left 0.8s ease;
+        }
+
+        .download-btn:hover::before {
+            left: 100%;
+        }
+
+        .download-btn.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .download-btn:hover {
+            transform: translateY(-5px);
+            background: 
+                linear-gradient(135deg, rgba(66,165,245,1) 0%, rgba(25,118,210,0.9) 100%),
+                linear-gradient(45deg, rgba(255,255,255,0.3) 0%, transparent 50%, rgba(144,202,249,0.2) 100%);
+            box-shadow: 
+                0 0 0 1px rgba(255,255,255,0.4),
+                0 20px 40px rgba(25,118,210,0.4),
+                inset 0 2px 0 rgba(255,255,255,0.6),
+                0 0 30px rgba(66,165,245,0.5);
+        }
+
+        .download-btn:active {
+            transform: translateY(-2px);
+        }
+
+        /* 반응형 디자인 */
+        @media (max-width: 480px) {
+            .container {
+                padding: 30px 20px;
+            }
+            
+            .title {
+                font-size: 1.8rem;
+            }
+            
+            .input-field {
+                font-size: 1rem;
+                padding: 15px 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <button class="lang-toggle" onclick="toggleLanguage()">EN</button>
+        
+        <div class="header">
+            <h1 class="title" data-ko="실시간 QR 생성기" data-en="Live QR Generator">실시간 QR 생성기</h1>
+            <p class="subtitle" data-ko="입력과 동시에 QR 코드가 생성됩니다" data-en="QR code generates as you type">입력과 동시에 QR 코드가 생성됩니다</p>
+        </div>
+        
+        <div class="input-section">
+            <div class="input-wrapper">
+                <input 
+                    type="text" 
+                    class="input-field" 
+                    id="textInput" 
+                    placeholder="텍스트, URL, 또는 메시지를 입력하세요..."
+                    data-placeholder-ko="텍스트, URL, 또는 메시지를 입력하세요..."
+                    data-placeholder-en="Enter text, URL, or message..."
+                >
+            </div>
+        </div>
+        
+        <div class="qr-display" id="qrDisplay">
+            <div class="placeholder" data-ko="위에 텍스트를 입력하면 QR 코드가 나타납니다" data-en="QR code will appear when you type above">위에 텍스트를 입력하면 QR 코드가 나타납니다</div>
+        </div>
+        
+        <button class="download-btn" id="downloadBtn" onclick="downloadQR()" data-ko="QR 코드 다운로드" data-en="Download QR Code">QR 코드 다운로드</button>
+    </div>
+
+    <script>
+        let currentLang = 'ko';
+        let currentQRCode = null;
+
+        const textInput = document.getElementById('textInput');
+        const qrDisplay = document.getElementById('qrDisplay');
+        const downloadBtn = document.getElementById('downloadBtn');
+
+        // 실시간 QR 코드 생성
+        textInput.addEventListener('input', function() {
+            const text = this.value.trim();
+            
+            if (text) {
+                generateQR(text);
+                downloadBtn.classList.add('show');
+            } else {
+                clearQR();
+                downloadBtn.classList.remove('show');
+            }
+        });
+
+        function generateQR(text) {
+            // 기존 QR 코드 제거
+            qrDisplay.innerHTML = '';
+            
+            // QR 코드 생성
+            const qr = qrcode(0, 'M');
+            qr.addData(text);
+            qr.make();
+            
+            // QR 코드를 Canvas로 렌더링
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            const modules = qr.getModuleCount();
+            const cellSize = 8;
+            const margin = 20;
+            
+            canvas.width = canvas.height = modules * cellSize + margin * 2;
+            
+            // 배경을 흰색으로
+            ctx.fillStyle = '#FFFFFF';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // QR 모듈 그리기
+            ctx.fillStyle = '#000000';
+            for (let row = 0; row < modules; row++) {
+                for (let col = 0; col < modules; col++) {
+                    if (qr.isDark(row, col)) {
+                        ctx.fillRect(
+                            col * cellSize + margin,
+                            row * cellSize + margin,
+                            cellSize,
+                            cellSize
+                        );
+                    }
+                }
+            }
+            
+            canvas.id = 'qrcode';
+            qrDisplay.appendChild(canvas);
+            currentQRCode = canvas;
+        }
+
+        function clearQR() {
+            qrDisplay.innerHTML = `<div class="placeholder" data-ko="위에 텍스트를 입력하면 QR 코드가 나타납니다" data-en="QR code will appear when you type above">${currentLang === 'ko' ? '위에 텍스트를 입력하면 QR 코드가 나타납니다' : 'QR code will appear when you type above'}</div>`;
+            currentQRCode = null;
+        }
+
+        function downloadQR() {
+            if (currentQRCode) {
+                const link = document.createElement('a');
+                link.download = 'qrcode.png';
+                link.href = currentQRCode.toDataURL();
+                link.click();
+            }
+        }
+
+        function toggleLanguage() {
+            currentLang = currentLang === 'ko' ? 'en' : 'ko';
+            updateLanguage();
+        }
+
+        function updateLanguage() {
+            const elements = document.querySelectorAll('[data-ko][data-en]');
+            const langToggle = document.querySelector('.lang-toggle');
+            const textInput = document.getElementById('textInput');
+            
+            elements.forEach(el => {
+                el.textContent = el.getAttribute(`data-${currentLang}`);
+            });
+            
+            langToggle.textContent = currentLang === 'ko' ? 'EN' : '한국어';
+            textInput.placeholder = textInput.getAttribute(`data-placeholder-${currentLang}`);
+            
+            // QR 코드가 없을 때 placeholder 업데이트
+            if (!currentQRCode) {
+                clearQR();
+            }
+        }
+    </script>
+</body>
+</html>
